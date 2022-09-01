@@ -37,6 +37,8 @@ public class LabelService {
     @PostConstruct
     public void setup() {
         labelTypes.add(LabelType.builder().width(198).height(120).rows(7).columns(3).build());
+
+        log.info(System.getProperty("user.dir"));
     }
 
     public void create(byte[] canvas) throws IOException {
