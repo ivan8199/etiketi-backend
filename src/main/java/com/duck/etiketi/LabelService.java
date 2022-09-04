@@ -30,7 +30,7 @@ public class LabelService {
 
     List<LabelType> labelTypes = new ArrayList<>();
 
-    private static final String userDir = System.getProperty("user.dir") + "\\test.pdf";
+    private static final String userDir = System.getProperty("user.dir") + "/test.pdf";
 
     @PostConstruct
     public void setup() {
