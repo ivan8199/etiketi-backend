@@ -30,15 +30,17 @@ public class LabelService {
 
     List<LabelType> labelTypes = new ArrayList<>();
 
+    private static final String userDir = System.getProperty("user.dir") + "\\test.pdf";
+
     @PostConstruct
     public void setup() {
         labelTypes.add(LabelType.builder().width(198).height(120).rows(7).columns(3).build());
 
-        log.info(System.getProperty("user.dir"));
+        log.info(userDir);
     }
 
     public File create(byte[] canvas) throws IOException {
-        PdfDocument pdf = new PdfDocument(new PdfWriter("C:\\Users\\ivan.angelovski\\Desktop\\etiketi\\test.pdf"));
+        PdfDocument pdf = new PdfDocument(new PdfWriter(userDir));
 
         pdf.addNewPage(PageSize.A4);
 
@@ -52,7 +54,7 @@ public class LabelService {
 
         pdf.close();
 
-        return new File("C:\\Users\\ivan.angelovski\\Desktop\\etiketi\\test.pdf");
+        return new File(userDir);
 
     }
 

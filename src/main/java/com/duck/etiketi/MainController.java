@@ -52,10 +52,11 @@ public class MainController {
 
         byte[] bytes = canvas.getBytes();
 
-        File outputFile = new File("C:\\Users\\ivan.angelovski\\Desktop\\etiketi\\output4File.png");
-        try (FileOutputStream outputStream = new FileOutputStream(outputFile)) {
-            outputStream.write(bytes);
-        }
+        // File outputFile = new
+        // File("C:\\Users\\ivan.angelovski\\Desktop\\etiketi\\output4File.png");
+        // try (FileOutputStream outputStream = new FileOutputStream(outputFile)) {
+        // outputStream.write(bytes);
+        // }
 
         File file = labelService.create(bytes);
         HttpHeaders headers = new HttpHeaders();
