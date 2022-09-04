@@ -14,6 +14,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -33,44 +34,33 @@ public class MainController {
     @Autowired
     LabelService labelService;
 
-    @PostMapping("create")
-    public String createLabel(@RequestBody List<Textbox> textboxes) throws IOException {
-        textboxes.stream().forEach(e -> log.info(e.toString()));
-        // labelService.create(textboxes);
-        return "ok";
-    }
+    @GetMapping("barcode")
+    public ResponseEntity<InputStreamResource> barcode() throws IOException {
 
-    @PostMapping("save")
-    public String uploadAvatar(@RequestParam MultipartFile canvas) throws IOException {
-        byte[] bytes = canvas.getBytes();
+        File file = labelService.barcode("12345678");
 
-        return labelService.create1(bytes);
+        InputStreamResource resource = new InputStreamResource(new FileInputStream(file));
+        HttpHeaders headers = new HttpHeaders();
 
-    }
+        return ResponseEntity.ok()
+                .headers(headers)
+                .contentLength(file.length())
+                .contentType(MediaType.IMAGE_PNG)
+                .body(resource);
 
-    @PostMapping("barcode")
-    public String barcode() throws FileNotFoundException {
-        labelService.barcode();
-
-        return "ok";
     }
 
     @RequestMapping(path = "/download", method = RequestMethod.POST)
-    public ResponseEntity<Resource> download(@RequestParam MultipartFile canvas, @RequestParam Integer template)
+    public ResponseEntity<InputStreamResource> download(@RequestParam MultipartFile canvas,
+            @RequestParam Integer template)
             throws IOException {
 
         byte[] bytes = canvas.getBytes();
 
-        // File outputFile = new
-        // File("C:\\Users\\ivan.angelovski\\Desktop\\etiketi\\output4File.png");
-        // try (FileOutputStream outputStream = new FileOutputStream(outputFile)) {
-        // outputStream.write(bytes);
-        // }
-
         File file = labelService.create(bytes, template);
-        HttpHeaders headers = new HttpHeaders();
 
         InputStreamResource resource = new InputStreamResource(new FileInputStream(file));
+        HttpHeaders headers = new HttpHeaders();
 
         return ResponseEntity.ok()
                 .headers(headers)
