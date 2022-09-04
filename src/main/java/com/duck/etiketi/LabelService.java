@@ -1,30 +1,26 @@
 package com.duck.etiketi;
 
-import java.io.FileNotFoundException;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
 
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.stereotype.Service;
 
-import com.itextpdf.io.font.FontConstants;
 import com.itextpdf.io.image.ImageData;
 import com.itextpdf.io.image.ImageDataFactory;
-import com.itextpdf.kernel.font.PdfFont;
-import com.itextpdf.kernel.font.PdfFontFactory;
 import com.itextpdf.kernel.geom.PageSize;
-import com.itextpdf.kernel.geom.Rectangle;
 import com.itextpdf.kernel.pdf.PdfDocument;
-import com.itextpdf.kernel.pdf.PdfPage;
 import com.itextpdf.kernel.pdf.PdfWriter;
-import com.itextpdf.kernel.pdf.canvas.PdfCanvas;
-import com.itextpdf.layout.Canvas;
 import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.Image;
-import com.itextpdf.layout.element.Paragraph;
-import com.itextpdf.layout.element.Text;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -41,7 +37,7 @@ public class LabelService {
         log.info(System.getProperty("user.dir"));
     }
 
-    public void create(byte[] canvas) throws IOException {
+    public File create(byte[] canvas) throws IOException {
         PdfDocument pdf = new PdfDocument(new PdfWriter("C:\\Users\\ivan.angelovski\\Desktop\\etiketi\\test.pdf"));
 
         pdf.addNewPage(PageSize.A4);
@@ -55,6 +51,30 @@ public class LabelService {
         }
 
         pdf.close();
+
+        return new File("C:\\Users\\ivan.angelovski\\Desktop\\etiketi\\test.pdf");
+
+    }
+
+    public String create1(byte[] canvas) throws IOException {
+        PdfDocument pdf = new PdfDocument(new PdfWriter("C:\\Users\\ivan.angelovski\\Desktop\\etiketi\\test.pdf"));
+
+        pdf.addNewPage(PageSize.A4);
+
+        LabelType labelType = labelTypes.get(0);
+
+        for (int i = 0; i < labelType.getColumns(); i++) {
+            for (int j = 0; j < labelType.getRows(); j++) {
+                addRect(pdf, i * labelType.getWidth(), j * labelType.getHeight(), labelType, canvas);
+            }
+        }
+
+        pdf.close();
+
+        File result = new File("C:\\Users\\ivan.angelovski\\Desktop\\etiketi\\test.pdf");
+        byte[] bytes = Files.readAllBytes(Paths.get("C:\\Users\\ivan.angelovski\\Desktop\\etiketi\\test.pdf"));
+        String encodedString = Base64.getEncoder().encodeToString(bytes);
+        return encodedString;
 
     }
 
