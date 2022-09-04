@@ -61,6 +61,14 @@
             <artifactId>pdftest</artifactId>
             <version>7.0.4</version>
         </dependency>
+
+        <!-- https://mvnrepository.com/artifact/com.itextpdf/barcodes -->
+        <dependency>
+            <groupId>com.itextpdf</groupId>
+            <artifactId>barcodes</artifactId>
+            <version>7.0.4</version>
+        </dependency>
+
     </dependencies>
 
     <build>

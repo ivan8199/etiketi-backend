@@ -2,6 +2,7 @@ package com.duck.etiketi;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
@@ -47,8 +48,16 @@ public class MainController {
 
     }
 
+    @PostMapping("barcode")
+    public String barcode() throws FileNotFoundException {
+        labelService.barcode();
+
+        return "ok";
+    }
+
     @RequestMapping(path = "/download", method = RequestMethod.POST)
-    public ResponseEntity<Resource> download(@RequestParam MultipartFile canvas) throws IOException {
+    public ResponseEntity<Resource> download(@RequestParam MultipartFile canvas, @RequestParam Integer template)
+            throws IOException {
 
         byte[] bytes = canvas.getBytes();
 
@@ -58,7 +67,7 @@ public class MainController {
         // outputStream.write(bytes);
         // }
 
-        File file = labelService.create(bytes);
+        File file = labelService.create(bytes, template);
         HttpHeaders headers = new HttpHeaders();
 
         InputStreamResource resource = new InputStreamResource(new FileInputStream(file));

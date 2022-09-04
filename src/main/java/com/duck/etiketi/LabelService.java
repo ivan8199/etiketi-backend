@@ -1,7 +1,7 @@
 package com.duck.etiketi;
 
 import java.io.File;
-import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -11,14 +11,19 @@ import java.util.List;
 
 import javax.annotation.PostConstruct;
 
-import org.springframework.core.io.InputStreamResource;
 import org.springframework.stereotype.Service;
 
+import com.itextpdf.barcodes.Barcode128;
 import com.itextpdf.io.image.ImageData;
 import com.itextpdf.io.image.ImageDataFactory;
+import com.itextpdf.kernel.color.Color;
 import com.itextpdf.kernel.geom.PageSize;
+import com.itextpdf.kernel.geom.Rectangle;
 import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.kernel.pdf.PdfPage;
 import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.kernel.pdf.canvas.PdfCanvas;
+import com.itextpdf.kernel.pdf.xobject.PdfFormXObject;
 import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.Image;
 
@@ -35,16 +40,17 @@ public class LabelService {
     @PostConstruct
     public void setup() {
         labelTypes.add(LabelType.builder().width(198).height(120).rows(7).columns(3).build());
+        labelTypes.add(LabelType.builder().width(297).height(210).rows(4).columns(2).build());
 
         log.info(userDir);
     }
 
-    public File create(byte[] canvas) throws IOException {
+    public File create(byte[] canvas, Integer template) throws IOException {
         PdfDocument pdf = new PdfDocument(new PdfWriter(userDir));
 
         pdf.addNewPage(PageSize.A4);
 
-        LabelType labelType = labelTypes.get(0);
+        LabelType labelType = labelTypes.get(template - 1);
 
         for (int i = 0; i < labelType.getColumns(); i++) {
             for (int j = 0; j < labelType.getRows(); j++) {
@@ -52,6 +58,47 @@ public class LabelService {
             }
         }
 
+        Barcode128 barcode = new Barcode128(pdf);
+        barcode.setCodeType(Barcode128.CODE128);
+        barcode.setCode("12345678");
+        barcode.setSize(12);
+        Rectangle rect = barcode.getBarcodeSize();
+        PdfFormXObject formXObject = new PdfFormXObject(new Rectangle(rect.getWidth(), rect.getHeight() + 10));
+        PdfCanvas pdfCanvas = new PdfCanvas(formXObject, pdf);
+        barcode.placeBarcode(pdfCanvas, Color.BLACK, Color.BLACK);
+        Image bCodeImage = new Image(formXObject);
+        bCodeImage.setRotationAngle(Math.toRadians(90));
+        bCodeImage.setFixedPosition(0, 0);
+
+        Document document = new Document(pdf);
+        document.add(bCodeImage);
+
+        pdf.close();
+
+        return new File(userDir);
+
+    }
+
+    public File barcode() throws FileNotFoundException {
+        PdfDocument pdf = new PdfDocument(new PdfWriter(userDir));
+        PageSize PageSize = new PageSize(100, 50);
+        pdf.setDefaultPageSize(PageSize);
+        PdfPage page = pdf.addNewPage(pdf.getDefaultPageSize());
+
+        Barcode128 barcode = new Barcode128(pdf);
+        barcode.setCodeType(Barcode128.CODE128);
+        barcode.setCode("12345678");
+        barcode.setSize(12);
+        Rectangle rect = barcode.getBarcodeSize();
+        PdfFormXObject formXObject = new PdfFormXObject(new Rectangle(rect.getWidth(), rect.getHeight() + 10));
+        PdfCanvas pdfCanvas = new PdfCanvas(formXObject, pdf);
+        barcode.placeBarcode(pdfCanvas, Color.BLACK, Color.BLACK);
+        Image bCodeImage = new Image(formXObject);
+        bCodeImage.setRotationAngle(Math.toRadians(90));
+        bCodeImage.setFixedPosition(0, 0);
+
+        Document document = new Document(pdf);
+        document.add(bCodeImage);
         pdf.close();
 
         return new File(userDir);
