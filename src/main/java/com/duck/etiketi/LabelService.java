@@ -131,7 +131,6 @@ public class LabelService {
 
         Document document = new Document(pdf);
         document.add(img);
-        document.close();
 
     }
 
