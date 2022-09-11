@@ -2,9 +2,7 @@ package com.duck.etiketi;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.nio.file.FileSystem;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -133,6 +131,7 @@ public class LabelService {
 
         Document document = new Document(pdf);
         document.add(img);
+        document.close();
 
     }
 
