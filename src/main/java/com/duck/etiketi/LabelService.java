@@ -50,33 +50,20 @@ public class LabelService {
         log.info(userDir);
     }
 
-    public File create(byte[] canvas, Integer template) throws IOException {
+    public File create(byte[] canvas, Integer template, Integer pages) throws IOException {
         PdfDocument pdf = new PdfDocument(new PdfWriter(userDir));
 
         pdf.addNewPage(PageSize.A4);
 
         LabelType labelType = labelTypes.get(template - 1);
+        for (int p = 1; p <= pages; p++) {
 
-        for (int i = 0; i < labelType.getColumns(); i++) {
-            for (int j = 0; j < labelType.getRows(); j++) {
-                addRect(pdf, i * labelType.getWidth(), j * labelType.getHeight(), labelType, canvas);
+            for (int i = 0; i < labelType.getColumns(); i++) {
+                for (int j = 0; j < labelType.getRows(); j++) {
+                    addRect(pdf, i * labelType.getWidth(), j * labelType.getHeight(), labelType, canvas, p);
+                }
             }
         }
-
-        Barcode128 barcode = new Barcode128(pdf);
-        barcode.setCodeType(Barcode128.CODE128);
-        barcode.setCode("12345678");
-        barcode.setSize(12);
-        Rectangle rect = barcode.getBarcodeSize();
-        PdfFormXObject formXObject = new PdfFormXObject(new Rectangle(rect.getWidth(), rect.getHeight() + 10));
-        PdfCanvas pdfCanvas = new PdfCanvas(formXObject, pdf);
-        barcode.placeBarcode(pdfCanvas, Color.BLACK, Color.BLACK);
-        Image bCodeImage = new Image(formXObject);
-        bCodeImage.setRotationAngle(Math.toRadians(90));
-        bCodeImage.setFixedPosition(0, 0);
-
-        Document document = new Document(pdf);
-        document.add(bCodeImage);
 
         pdf.close();
 
@@ -90,7 +77,7 @@ public class LabelService {
 
         Barcode128 barcode = new Barcode128(pdf);
         barcode.setCodeType(BarcodeEAN.EAN13);
-        barcode.setCode("12345678");
+        barcode.setCode(code);
         barcode.setSize(9);
         Rectangle rect = barcode.getBarcodeSize();
 
@@ -98,11 +85,18 @@ public class LabelService {
         pdf.setDefaultPageSize(pageSize);
         pdf.addNewPage(pdf.getDefaultPageSize());
 
-        PdfFormXObject formXObject = new PdfFormXObject(new Rectangle(rect.getWidth(), rect.getHeight()));
+        PdfFormXObject formXObject = new PdfFormXObject(rect);
         PdfCanvas pdfCanvas = new PdfCanvas(formXObject, pdf);
         barcode.placeBarcode(pdfCanvas, Color.BLACK, Color.BLACK);
         Image bCodeImage = new Image(formXObject);
-        // bCodeImage.setRotationAngle(Math.toRadians(90));
+        bCodeImage.setRotationAngle(Math.toRadians(0));
+
+        // float x = 0;
+        // float y = 0;
+        // if (rotation.equals(90)) {
+        // x = -rotatedRect.getWidth();
+        // y = -rotatedRect.getHeight();
+        // }
         bCodeImage.setFixedPosition(0, 0);
 
         Document document = new Document(pdf);
@@ -127,14 +121,15 @@ public class LabelService {
         document.close();
     }
 
-    private void addRect(PdfDocument pdf, int x, int y, LabelType labelType, byte[] canvas) throws IOException {
+    private void addRect(PdfDocument pdf, int x, int y, LabelType labelType, byte[] canvas, int pageNumber)
+            throws IOException {
 
         ImageData data = ImageDataFactory.create(canvas);
         Image img = new Image(data);
 
         img.setWidth(labelType.getWidth());
         img.setHeight(labelType.getHeight());
-        img.setFixedPosition(x, y);
+        img.setFixedPosition(pageNumber, x, y);
 
         Document document = new Document(pdf);
         document.add(img);
