@@ -3,8 +3,12 @@ package com.duck.etiketi;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import javax.annotation.PostConstruct;
 
@@ -39,6 +43,7 @@ public class LabelService {
     private static final String userDir = System.getProperty("user.dir") + File.separator + "test.pdf";
     private static final String imageDir = System.getProperty("user.dir") + File.separator + "image.pdf";
     private static final String imagePngDir = System.getProperty("user.dir") + File.separator + "image.png";
+    private static final String uploadedImagePngDir = System.getProperty("user.dir");
 
     @PostConstruct
     public void setup() {
@@ -106,6 +111,17 @@ public class LabelService {
 
         return new File(imagePngDir);
 
+    }
+
+    public File image(byte[] image) throws IOException {
+        UUID uuid = UUID.nameUUIDFromBytes(image);
+        return Files.write(Paths.get(uploadedImagePngDir + File.separator
+                + uuid + ".png"), image).toFile();
+    }
+
+    public File image(String code) throws IOException {
+        return Paths.get(uploadedImagePngDir + File.separator
+                + code).toFile();
     }
 
     private void convertToPng() throws IOException {
